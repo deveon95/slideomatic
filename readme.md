@@ -4,7 +4,7 @@
 
 ![Screenshot of display output](media/snapshot3.png "Screenshot of display output")
 
-Slideomatic is a program written in Python which displays a slideshow and provides an interface for controlling music playback using a physical rotary switch. It is designed to work on the Raspberry Pi and was originally intended for use with raspi-teletext but does not depend on it and can be used without.
+Slideomatic is a program written in Python which displays a slideshow and provides an interface for controlling music playback using a physical rotary switch. It is designed to work on the Raspberry Pi and was originally intended for use with [vbit2 and raspi-teletext](https://github.com/peterkvt80/vbit2/wiki) but does not depend on them and can be used without.
 
 ## Features
 
@@ -36,7 +36,7 @@ If using the default `teletext4` font then download and install this too:
 
 ### Media playback
 
-If `mpd` has been freshly installed, setup is required before media playback will work. This setup is not specific to `insertomatic` and is general for all new `mpd` installations.
+If `mpd` has been freshly installed, setup is required before media playback will work. This setup is not specific to `slideomatic` and is general for all new `mpd` installations.
 
 For most Raspberry Pi users, all you will have to do is open the `mpd.conf` file (`sudo nano /etc/mpd.conf`) then locate the `alsa` configuration example and uncomment just the first three lines and closing brace like so:
 
@@ -85,4 +85,4 @@ The images are not scaled to ensure that pixel perfect rendering will always be 
 
 A comprehensive range of configuration variables is available. Read through the comments to determine if any should be changed to suit your use.
 
-Run `sudo python3 ./insertomatic.py` to start Insertomatic and test the configuration. Press Ctrl+C to exit. Note that if started via ssh, Python may stop after the session is disconnected, so it may be better to use `sudo nohup python3 insertomatic.py` instead. To run at startup, run `nohup python3 insertomatic.py` using any usual method for running programs at startup such as adding it to `/etc/rc.local` or to crontab.
+Run `sudo python3 ./slideomatic.py` to start Slideomatic and test the configuration. Press Ctrl+C to exit. Note that if started via ssh, Python may stop after the session is disconnected, so it may be better to use `sudo nohup python3 slideomatic.py` instead. To run at startup, run `nohup python3 slideomatic.py` using any usual method for running programs at startup such as adding it to `/etc/rc.local` or to crontab.
