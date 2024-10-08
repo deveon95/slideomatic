@@ -46,10 +46,13 @@ fontsize = 40
 # Caption height in pixels
 captionheight = (fontsize * 2)
 # GPIO pins for the programme selection switch (N.B. Pin 27 on later Pis is pin 21 on original Pi)
-switchAGPIO = 17
-switchBGPIO = 27
-switchCGPIO = 22
-switchDGPIO = 10
+switchAGPIO = 12
+switchBGPIO = 16
+switchCGPIO = 20
+switchDGPIO = 21
+# Audio enable GPIO for switching the audio mux between master audio and this Pi
+audioEnGPIO = 26
+useAudioEn = False
 # Fixed deduction due to font.size returning value with blank line of pixels added
 fontHeightDeduct = 1
 # Path to font file
@@ -62,7 +65,7 @@ captioninterval = (2 * 10)
 imageinterval = ((60 * 10) * 10)
 # Set switchinvert to True if switch contacts are closed when set to 0 (disconnected switch will also be read as 15),
 # or False if switch contacts are open when set to 0 (disconnected switch will also be read as 0)
-switchinvert = True
+switchinvert = False
 # number of consistent samples of the switch required to change the programme;
 # this prevents unnecessary server requests being made when moving the switch multple positions
 # and protects against the spurious outputs that BCD-coded thumbwheel switches generate when incrementing
@@ -174,6 +177,8 @@ switchPosOld = 0
 switchPosNew = getSwitchPos(switchA.value, switchB.value, switchC.value, switchD.value)
 switchSamples = array.array('i', [switchPosNew] * switchsamplecount)
 firstRun = True
+if useAudioEn == True:
+	audioEn = gpiozero.LED(audioEnGPIO)
 
 while running:
 	# short delay
@@ -195,26 +200,42 @@ while running:
 	# If the switch position has changed
 	if (switchPosOld != switchPosNew) or (firstRun == True):
 		print("New switch position: " + str(switchPosNew) + " was: " + str(switchPosOld))
-		if (switchPosNew >= localmusicnumber):
-			# internet radio mode
-			if (switchPosOld < localmusicnumber):
-				# Was in local music mode so need to load internet radio playlist
+		if (switchPosNew == 0 and useAudioEn == True):
+			subprocess.run(['mpc', 'stop'])
+			# use master audio
+			audioEn.off()
+		else:
+			if (useAudioEn == True):
+				# Use audio from this pi
+				audioEn.on()
+				# Adjust switch position index temporarily because
+				# position 0 is now used for the master audio
+				switchPosNew -= 1
+			#endif
+			if (switchPosNew >= localmusicnumber):
+				# internet radio mode
+				if (switchPosOld < localmusicnumber):
+					# Was in local music mode so need to load internet radio playlist
+					subprocess.run(['mpc', 'stop'])
+					subprocess.run(['mpc', 'clear'])
+					subprocess.run(['mpc', 'random', 'off'])
+					subprocess.run(['mpc', 'single', 'on'])
+					subprocess.run(['mpc', 'load', 'internetradio'])
+				#endif
+				# play new programme
+				subprocess.run(['mpc', 'play', str(switchPosNew + 1 - localmusicnumber)])
+			else:
+				# local music mode
 				subprocess.run(['mpc', 'stop'])
 				subprocess.run(['mpc', 'clear'])
-				subprocess.run(['mpc', 'random', 'off'])
-				subprocess.run(['mpc', 'single', 'on'])
-				subprocess.run(['mpc', 'load', 'internetradio'])
+				subprocess.run(['mpc', 'findadd', localmusicsearchfield[switchPosNew], localmusicsearchdata[switchPosNew]])
+				subprocess.run(['mpc', 'random', 'on'])
+				subprocess.run(['mpc', 'single', 'off'])
+				subprocess.run(['mpc', 'play'])
 			#endif
-			# play new programme
-			subprocess.run(['mpc', 'play', str(switchPosNew + 1 - localmusicnumber)])
-		else:
-			# local music mode
-			subprocess.run(['mpc', 'stop'])
-			subprocess.run(['mpc', 'clear'])
-			subprocess.run(['mpc', 'findadd', localmusicsearchfield[switchPosNew], localmusicsearchdata[switchPosNew]])
-			subprocess.run(['mpc', 'random', 'on'])
-			subprocess.run(['mpc', 'single', 'off'])
-			subprocess.run(['mpc', 'play'])
+			if (useAudioEn == True):
+				switchPosNew += 1
+			#endif
 		#endif
 		# set captionloopcounter so that caption will be fetched in one second, allowing time to connect
 		captionloopcounter = captioninterval - 10
@@ -299,7 +320,7 @@ while running:
 		if event.type == pygame.QUIT:
 			running = False
 		else:
-			print("Event type: " & str(event.type))
+			print("Event type: " + str(event.type))
 
 # exit
 pygame.display.quit()
