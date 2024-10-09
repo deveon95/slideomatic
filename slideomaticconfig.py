@@ -10,6 +10,10 @@ slideshowpath = "/home/pi/slideshow/*.jpg"
 # Commands for formatting the status output for the caption
 localmusicstatuscommand = ['mpc', '-f', '%album%: %title%', 'current']
 internetradiostatuscommand = ['mpc', 'current']
+localmusicline1 = ['mpc', '-f', '%album%']
+localmusicline2 = ['mpc', '-f', '%title%']
+internetradioline1 = ['mpc', '-f', '%name%']
+internetradioline2 = ['mpc', '-f', '%title%']
 # Offsets for correcting image position so that it appears in the centre
 vbioffset = 24
 horoffset = 9
@@ -33,6 +37,8 @@ switchDGPIO = 21
 # Audio enable GPIO for switching the audio mux between master audio and this Pi
 audioEnGPIO = 26
 useAudioEn = False
+# Serial port
+serialPort = '/dev/ttyS0'
 # Fixed deduction due to font.size returning value with blank line of pixels added
 fontHeightDeduct = 1
 # Path to font file

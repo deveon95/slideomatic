@@ -21,7 +21,7 @@
 ## Configuration variables
 # Moved to slideomaticconfig.py
 
-import os,sys,pygame,subprocess,glob,random,time,signal,gpiozero,array
+import os,sys,pygame,subprocess,glob,random,time,signal,gpiozero,array,serial
 from unicodedata import normalize
 from slideomaticconfig import *
 
@@ -130,6 +130,18 @@ switchSamples = array.array('i', [switchPosNew] * switchsamplecount)
 firstRun = True
 if useAudioEn == True:
 	audioEn = gpiozero.LED(audioEnGPIO)
+
+# set up serial port
+ser = serial.Serial(
+	port = serialPort,
+	baudrate = 19200,
+	parity = serial.PARITY_NONE,
+	stopbits = serial.STOPBITS_ONE,
+	bytesize = serial.EIGHTBITS,
+	timeout = 1
+)
+# serial write
+ser.write(str.encode("\x08" + str(os.uname()[1]) + "\n"))
 
 while running:
 	# short delay
@@ -251,6 +263,16 @@ while running:
 				drawText(screen, nowplaying, textfg, ((captionmargin+horoffset, screen.get_height()-captionheight-1), (screen.get_width()-int(captionmargin*2)-horoffset, captionheight)), font) 
 				# update screen
 				pygame.display.update()
+				if (useAudioEn == True) and (switchPosNew == 0):
+					ser.write(str.encode("\x08" + str(os.uname()[1]) + "\nRouted from P3"))
+				elif (switchPosNew < localmusicnumber):
+					line1 = normalize("NFC", subprocess.check_output(localmusicline1).decode().split('\n')[0])
+					line2 = normalize("NFC", subprocess.check_output(localmusicline2).decode().split('\n')[0])
+					ser.write(str.encode("\x08" + line1 + "\n" + line2))
+				else:
+					line1 = normalize("NFC", subprocess.check_output(internetradioline1).decode().split('\n')[0])
+					line2 = normalize("NFC", subprocess.check_output(internetradioline2).decode().split('\n')[0])
+					ser.write(str.encode("\x08" + line1 + "\n" + line2))
 				# nothing for 'else' in this case because old now playing info is still valid
 			#endif
 		else:
@@ -259,6 +281,8 @@ while running:
 				screen.fill(defaultbg)
 				screen.blit(image,(int(imagexpos),int(imageypos)))
 				pygame.display.update()
+				# Print hostname on Insertomatic LCD
+				ser.write(str.encode("\x08" + str(os.uname()[1]) + "\n"))
 				# set nowplayingold here, otherwise if the now playing info comes back and is the same
 				# as it was before, it won't be displayed.
 				nowplayingold = nowplaying
