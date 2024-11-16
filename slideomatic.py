@@ -263,9 +263,7 @@ while running:
 				drawText(screen, nowplaying, textfg, ((captionmargin+horoffset, screen.get_height()-captionheight-1), (screen.get_width()-int(captionmargin*2)-horoffset, captionheight)), font) 
 				# update screen
 				pygame.display.update()
-				if (useAudioEn == True) and (switchPosNew == 0):
-					ser.write(str.encode("\x08" + str(os.uname()[1]) + "\nRouted from P3"))
-				elif (switchPosNew < localmusicnumber):
+				if (switchPosNew < localmusicnumber):
 					line1 = normalize("NFC", subprocess.check_output(localmusicline1).decode().split('\n')[0])
 					line2 = normalize("NFC", subprocess.check_output(localmusicline2).decode().split('\n')[0])
 					ser.write(str.encode("\x08" + line1 + "\n" + line2))
@@ -283,6 +281,8 @@ while running:
 				pygame.display.update()
 				# Print hostname on Insertomatic LCD
 				ser.write(str.encode("\x08" + str(os.uname()[1]) + "\n"))
+				if (useAudioEn == True) and (switchPosNew == 0):
+					ser.write(str.encode("Audio routed from P3"))
 				# set nowplayingold here, otherwise if the now playing info comes back and is the same
 				# as it was before, it won't be displayed.
 				nowplayingold = nowplaying

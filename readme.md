@@ -25,7 +25,7 @@ Slideomatic is a program written in Python which displays a slideshow and provid
 Install dependencies
 
     $ sudo apt update
-    $ sudo apt install python3-pygame,mpd,mpc
+    $ sudo apt install python3-pygame mpd mpc python3-serial
 
 If using vbit2 and raspi-teletext, these can be installed the usual way with no special setup required for those.
 
