@@ -75,6 +75,8 @@ Example:
     
 A wide range of codecs is supported by mpd including mp3, aac, ogg, opus, and flac. HTTPS is supported as well as HTTP. In addition to the usual ADTS, MPEG-DASH and HLS are also supported, but now playing metadata doesn't seem to work for those.
 
+* Do not leave **internet-only PPL/PRS-licenced** stations streaming unattended. Licence fees are based on the number of listeners to each licenced track and a single Raspberry Pi streaming such a station 24 hours a day for any significant amount of time will quickly add up to a high fee. Stations that are on FM/DAB pay a fixed fee for an "internet simulcast" and should be OK to stream non-stop.
+
 ### Slideshow images
 
 Add the slideshow images to the path specified by the `slideshowpath` variable.
@@ -85,4 +87,6 @@ The images are not scaled to ensure that pixel perfect rendering will always be 
 
 A comprehensive range of configuration variables is available. Read through the comments to determine if any should be changed to suit your use.
 
-Run `sudo python3 ./slideomatic.py` to start Slideomatic and test the configuration. Press Ctrl+C to exit. Note that if started via ssh, Python may stop after the session is disconnected, so it may be better to use `sudo nohup python3 slideomatic.py` instead. To run at startup, run `nohup python3 slideomatic.py` using any usual method for running programs at startup such as adding it to `/etc/rc.local` or to crontab.
+Run `sudo python3 ./slideomatic.py` to start Slideomatic and test the configuration. Press Ctrl+C to exit. Note that if started via ssh, Python may stop after the session is disconnected, so it may be better to use `sudo nohup python3 slideomatic.py` instead. To run at startup, run `nohup python3 slideomatic.py` using any usual method for running programs at startup such as adding it to `/etc/rc.local` or to crontab. Ctrl+Alt+F2 F3 etc. should work for switching between the slideshow and the terminal to allow the system to be used for other purposes without quitting.
+
+The Insertomatic 6000 uses the crontab method; the command used is `@reboot sleep 15 && sudo python3 /home/pi/slideomatic.py > /home/pi/slideomatic.log`. I would prefer to do this using systemd but I haven't been able to get the video to work when starting it from a systemd service.
